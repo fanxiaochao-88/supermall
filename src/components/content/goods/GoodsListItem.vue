@@ -1,7 +1,7 @@
 <template>
   <div class="goods-item">
     <div class="img-div">
-      <img :src="goodsItem.show.img" alt="">
+      <img :src="goodsItem.show.img" alt="" @load='imageLoad'>
     </div>
     <div>
       <p>{{goodsItem.title}}</p>
@@ -31,7 +31,14 @@
     },
     components: {
 
-    }
+    },
+    methods: {
+      imageLoad() {
+        // console.log('image');
+        // 图片加载完成发射事件,向事件总线发射事件
+        this.$bus.$emit('itemImageLoad')
+      }
+    },
   }
 </script>
 

@@ -37,19 +37,26 @@
       this.scroll.on('scroll', (position) => {
         // console.log(position);
         this.$emit('scroll', position)
+        // this.scroll.refresh()
+        // console.log(this.scroll.scrollerHeight);
       })
       // 监听上拉事件
       this.scroll.on('pullingUp', () => {
         // console.log('孩子说:到底了!');
         this.$emit('pullingUp')
       })
+
     },
     methods: {
       scrollTo(x, y, time = 300) {
-        this.scroll.scrollTo(x, y, time)
+        this.scroll && this.scroll.scrollTo(x, y, time)
       },
       finishPullUp() {
-        this.scroll.finishPullUp()
+        this.scroll && this.scroll.finishPullUp()
+      },
+      refresh() {
+        // console.log('_____________');
+        this.scroll && this.scroll.refresh()
       }
     },
     components: {

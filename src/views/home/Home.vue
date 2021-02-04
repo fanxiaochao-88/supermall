@@ -48,6 +48,8 @@
     getHomeGoods
   } from 'network/home'
 
+  import { debounce } from 'common/utils'
+
   export default {
     name: "Home",
     data() {
@@ -90,7 +92,23 @@
       this.getHomeGoods('new')
       this.getHomeGoods('sell')
     },
+    mounted() {
+      const refresh = debounce(this.$refs.scroll.refresh, 200)
+      this.$bus.$on('itemImageLoad', () => {
+        refresh()
+      })
+    },
+    // mounted() {
+    //   // 监听item中图片加载完成
+    //   this.$bus.$on('itemImageLoad', () => {
+    //     console.log('-----------');
+    //     this.$refs.scroll.refresh()
+    //     // console.log(this.$refs.scroll.scroll.scrollerHeight);
+    //   })
+    // },
     methods: {
+
+
       /**
        * 网络请求相关方法
        */
