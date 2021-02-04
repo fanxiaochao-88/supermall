@@ -4,124 +4,27 @@
     <nav-bar class="home-nav">
       <div slot="center">常晶晶Show</div>
     </nav-bar>
-    <div class="wrapper">
-      <div class="content">
-        <!-- 轮播图 -->
-        <home-swiper :banners='banners'></home-swiper>
-        <!-- 推荐 -->
-        <recommend-view :recommends='recommends'></recommend-view>
-        <!-- 流行大图 -->
-        <feature-view></feature-view>
-        <!-- 选项卡 -->
-        <tab-control :titles="['流行','新款','精选']" class="tab-control" @tabClick='tabClick'></tab-control>
 
-        <!-- 真实数据 -->
-        <goods-list :goods='showGoods'></goods-list>
-      </div>
-    </div>
+    <!-- 封装的滚动组件 -->
+    <scroll class="content" ref="scroll" :probe-type='3' @scroll='contentScroll' :pull-up-load='true'
+      @pullingUp='loadMore'>
+      <!-- 轮播图 -->
+      <home-swiper :banners='banners'></home-swiper>
+      <!-- 推荐 -->
+      <recommend-view :recommends='recommends'></recommend-view>
+      <!-- 流行大图 -->
+      <feature-view></feature-view>
+      <!-- 选项卡 -->
+      <tab-control :titles="['流行','新款','精选']" class="tab-control" @tabClick='tabClick'></tab-control>
+      <!-- 真实数据 -->
+      <goods-list :goods='showGoods'></goods-list>
+    </scroll>
 
-    <ul>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-    </ul>
+    <!-- 回到顶部按钮 -->
+    <back-top @click.native='backClick' v-show='isShowBackTop'></back-top>
+
+
+
 
   </div>
 </template>
@@ -134,6 +37,8 @@
   import NavBar from 'components/common/navbar/NavBar'
   import TabControl from 'components/content/tabControl/TabControl'
   import GoodsList from 'components/content/goods/GoodsList'
+  import Scroll from 'components/common/scroll/Scroll'
+  import BackTop from 'components/content/backTop/BackTop'
 
   // 这样引用,本组件对第三方框架依赖性过高
   // import BScroll from 'better-scroll'
@@ -156,7 +61,9 @@
         },
         // 动态给GoodsList组件传递不同分类的数据
         allType: ['pop', 'new', 'sell'],
-        allTypeIndex: 0
+        allTypeIndex: 0,
+        currentType: 'pop',
+        isShowBackTop: false
       }
     },
     computed: {
@@ -170,7 +77,9 @@
       RecommendView,
       FeatureView,
       TabControl,
-      GoodsList
+      GoodsList,
+      Scroll,
+      BackTop
     },
     created() {
       // 请求轮播图,推荐数据
@@ -199,6 +108,8 @@
           // this.goods[type].list = res.data.list
           this.goods[type].list.push(...res.data.list)
           this.goods[type].page += 1
+
+          this.$refs.scroll.finishPullUp()
         })
       },
 
@@ -208,14 +119,34 @@
       tabClick(index) {
         // console.log(index);
         this.allTypeIndex = index
+        this.currentType = this.allType[this.allTypeIndex]
+      },
+      backClick() {
+        // this.$refs.scroll.scroll.scrollTo(0, 0, 1000)
+        this.$refs.scroll.scrollTo(0, 0, 1000)
+      },
+      contentScroll(position) {
+        if (Math.abs(position.y) > 1000) {
+          this.isShowBackTop = true
+        } else {
+          this.isShowBackTop = false
+        }
+      },
+      loadMore() {
+        // console.log('爸爸说:知道你到底了,这就开始加载更多');
+        this.getHomeGoods(this.currentType)
+        // console.log(this.goods[this.currentType].list.length);
       }
     },
+
   }
 </script>
 
 <style scoped>
   #home {
     padding-top: 44px;
+    height: 100vh;
+    position: relative;
   }
 
   .home-nav {
@@ -234,4 +165,23 @@
     position: sticky;
     top: 44px;
   }
+
+  .content {
+    /* height: 300px; */
+    overflow: hidden;
+
+    position: absolute;
+    top: 44px;
+    bottom: 49px;
+    left: 0;
+    right: 0;
+  }
+
+  /* .content {
+    height: calc(100% - 93px + 44px);
+    height: 100%;
+    height: calc(100% - 90px);
+    overflow: hidden;
+    margin-top: 44px;
+  } */
 </style>
