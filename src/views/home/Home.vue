@@ -4,17 +4,21 @@
     <nav-bar class="home-nav">
       <div slot="center">常晶晶Show</div>
     </nav-bar>
-    <!-- 轮播图 -->
-    <home-swiper :banners='banners'></home-swiper>
-    <!-- 推荐 -->
-    <recommend-view :recommends='recommends'></recommend-view>
-    <!-- 流行大图 -->
-    <feature-view></feature-view>
-    <!-- 选项卡 -->
-    <tab-control :titles="['流行','新款','精选']" class="tab-control" @tabClick='tabClick'></tab-control>
+    <div class="wrapper">
+      <div class="content">
+        <!-- 轮播图 -->
+        <home-swiper :banners='banners'></home-swiper>
+        <!-- 推荐 -->
+        <recommend-view :recommends='recommends'></recommend-view>
+        <!-- 流行大图 -->
+        <feature-view></feature-view>
+        <!-- 选项卡 -->
+        <tab-control :titles="['流行','新款','精选']" class="tab-control" @tabClick='tabClick'></tab-control>
 
-    <!-- 真实数据 -->
-    <goods-list :goods='showGoods'></goods-list>
+        <!-- 真实数据 -->
+        <goods-list :goods='showGoods'></goods-list>
+      </div>
+    </div>
 
     <ul>
       <li>test</li>
@@ -131,6 +135,9 @@
   import TabControl from 'components/content/tabControl/TabControl'
   import GoodsList from 'components/content/goods/GoodsList'
 
+  // 这样引用,本组件对第三方框架依赖性过高
+  // import BScroll from 'better-scroll'
+
   import {
     getHomeMultidata,
     getHomeGoods
@@ -212,7 +219,7 @@
   }
 
   .home-nav {
-    background-color: var(--color-tint);
+    background-color: deeppink;
     color: white;
     font-size: 20px;
     letter-spacing: 2px;
