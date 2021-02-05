@@ -5,17 +5,21 @@
       <div slot="center">常晶晶Show</div>
     </nav-bar>
 
+    <!-- 选项卡 -->
+    <tab-control :titles="['流行','新款','精选']" @tabClick='tabClick' ref="tabControl1" class="top-tab-control"
+      v-show='isTabControlFixed'></tab-control>
+
     <!-- 封装的滚动组件 -->
     <scroll class="content" ref="scroll" :probe-type='3' @scroll='contentScroll' :pull-up-load='true'
       @pullingUp='loadMore'>
       <!-- 轮播图 -->
-      <home-swiper :banners='banners'></home-swiper>
+      <home-swiper :banners='banners' @swiperImageLoad='swiperImageLoad'></home-swiper>
       <!-- 推荐 -->
       <recommend-view :recommends='recommends'></recommend-view>
       <!-- 流行大图 -->
       <feature-view></feature-view>
       <!-- 选项卡 -->
-      <tab-control :titles="['流行','新款','精选']" class="tab-control" @tabClick='tabClick'></tab-control>
+      <tab-control :titles="['流行','新款','精选']" @tabClick='tabClick' ref="tabControl2"></tab-control>
       <!-- 真实数据 -->
       <goods-list :goods='showGoods'></goods-list>
     </scroll>
@@ -65,7 +69,10 @@
         allType: ['pop', 'new', 'sell'],
         allTypeIndex: 0,
         currentType: 'pop',
-        isShowBackTop: false
+        isShowBackTop: false,
+        tabOffsetTop: 0,
+        isTabControlFixed: false,
+        saveY: 0
       }
     },
     computed: {
@@ -91,12 +98,31 @@
       this.getHomeGoods('pop')
       this.getHomeGoods('new')
       this.getHomeGoods('sell')
+
     },
     mounted() {
+      // 1.监听图片加载完成
       const refresh = debounce(this.$refs.scroll.refresh, 200)
       this.$bus.$on('itemImageLoad', () => {
         refresh()
       })
+
+      // 2.给tabOffsetTop赋值
+      // 组件的属性,$el:用户获取组件的元素
+      // 直接获取的时候  图片还没有加载完成,获取的offsetTop不准确
+      // this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop
+      // console.log(this.tabOffsetTop);
+    },
+    destroyed() {
+      console.log('首页销毁')
+    },
+    // 监听home离开
+    activated() {
+      this.$refs.scroll.scrollTo(0, this.saveY, 0)
+      this.$refs.scroll.refresh()
+    },
+    deactivated() {
+      this.saveY = this.$refs.scroll.getScrollY()
     },
     // mounted() {
     //   // 监听item中图片加载完成
@@ -138,22 +164,39 @@
         // console.log(index);
         this.allTypeIndex = index
         this.currentType = this.allType[this.allTypeIndex]
+
+        // this.$refs.tabControl1.currentIndex = this.$refs.tabControl2.currentIndex
+        this.$refs.tabControl1.currentIndex = index
+        this.$refs.tabControl2.currentIndex = index
+
+        // 如果切换的是底部tabbar,状态会保留
+        // 如果切换的是tabcontrol的话,状态会刷新
+        // ------------------------------------------
+        this.$refs.scroll.scrollTo(0, -this.tabOffsetTop, 0)
+        // ------------------------------------------
+
       },
       backClick() {
         // this.$refs.scroll.scroll.scrollTo(0, 0, 1000)
         this.$refs.scroll.scrollTo(0, 0, 1000)
       },
       contentScroll(position) {
+        // 判断BackTop是否显示
         if (Math.abs(position.y) > 1000) {
           this.isShowBackTop = true
         } else {
           this.isShowBackTop = false
         }
+        // 决定tabControl是否吸顶position:fixed
+        this.isTabControlFixed = (-position.y) > this.tabOffsetTop
       },
       loadMore() {
         // console.log('爸爸说:知道你到底了,这就开始加载更多');
         this.getHomeGoods(this.currentType)
         // console.log(this.goods[this.currentType].list.length);
+      },
+      swiperImageLoad() {
+        this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop
       }
     },
 
@@ -162,7 +205,7 @@
 
 <style scoped>
   #home {
-    padding-top: 44px;
+    /* padding-top: 44px; */
     height: 100vh;
     position: relative;
   }
@@ -172,17 +215,16 @@
     color: white;
     font-size: 20px;
     letter-spacing: 2px;
-    position: fixed;
+
+    /* 原生滚动 需要  为了导航不跟着滚动 */
+    /* position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 9;
+    z-index: 9; */
   }
 
-  .tab-control {
-    position: sticky;
-    top: 44px;
-  }
+
 
   .content {
     /* height: 300px; */
@@ -193,6 +235,11 @@
     bottom: 49px;
     left: 0;
     right: 0;
+  }
+
+  .top-tab-control {
+    position: relative;
+    z-index: 9;
   }
 
   /* .content {
