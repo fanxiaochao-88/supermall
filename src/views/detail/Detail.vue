@@ -8,6 +8,9 @@
       <detail-shop-info :shop='shop'></detail-shop-info>
       <detail-goods-info :detailInfo='detailInfo' @imageLoad='imageLoad'></detail-goods-info>
       <detail-param-info :paramInfo='paramInfo'></detail-param-info>
+      <detail-comment-info :commentInfo='commentInfo'></detail-comment-info>
+      <goods-list :goods='recommends'></goods-list>
+      <!-- <DetailCommentInfo :commentInfo='commentInfo'></DetailCommentInfo> -->
     </scroll>
 
     <h2>{{iid}}</h2>
@@ -21,12 +24,11 @@
   import DetailShopInfo from './childComps/DetailShopInfo'
   import DetailGoodsInfo from './childComps/DetailGoodsInfo'
   import DetailParamInfo from './childComps/DetailParamInfo'
-
+  import DetailCommentInfo from './childComps/DetailCommentInfo'
+  import GoodsList from 'components/content/goods/GoodsList'
   import Scroll from 'components/common/scroll/Scroll'
-
-
-  import { getDetail, Goods, Shop, GoodsParam } from 'network/detail'
-
+  import { getDetail, Goods, Shop, GoodsParam, getRecommend } from 'network/detail'
+  import { debounce } from 'common/utils'
   export default {
     name: 'Detail',
     data() {
@@ -36,7 +38,10 @@
         goods: {},
         shop: {},
         detailInfo: {},
-        paramInfo: {}
+        paramInfo: {},
+        commentInfo: {},
+        recommends: [],
+        imgListener: null
       }
     },
     created() {
@@ -44,7 +49,7 @@
       this.iid = this.$route.params.iid
       // 2.发送网络请求,请求详情页数据
       getDetail(this.iid).then(res => {
-        console.log(res);
+        // console.log(res);
         const data = res.result
         // 获取轮播图数据
         this.topImages = data.itemInfo.topImages
@@ -56,8 +61,35 @@
         this.detailInfo = data.detailInfo
         // 保存商品参数信息
         this.paramInfo = new GoodsParam(data.itemParams.info, data.itemParams.rule)
-        // 该看199了
+        // 取出商品的品论信息
+        if (data.rate.cRate !== 0) {
+          this.commentInfo = data.rate.list[0]
+        }
+        // 取出推荐商品的信息
       })
+
+      // 请求推荐数据
+      getRecommend().then(res => {
+        console.log(res);
+        this.recommends = res.data.list
+      })
+    },
+    mounted() {
+      // 1.监听图片加载完成
+      const refresh = debounce(this.$refs.scroll.refresh, 200)
+      this.imgListener = () => {
+        refresh()
+      }
+      this.$bus.$on('itemImageLoad', this.imgListener)
+    },
+    // deactivated() {
+    //   console.log('detail lose active');
+    //   // home组件停止监听全局事件
+    //   this.$bus.$off('itemImageLoad', this.imgListener)
+    // },
+    destroyed() {
+      // home组件停止监听全局事件
+      this.$bus.$off('itemImageLoad', this.imgListener)
     },
     activated() {
       // this.iid = this.$route.params.iid
@@ -69,7 +101,9 @@
       DetailShopInfo,
       Scroll,
       DetailGoodsInfo,
-      DetailParamInfo
+      DetailParamInfo,
+      DetailCommentInfo,
+      GoodsList
     },
     methods: {
       imageLoad() {

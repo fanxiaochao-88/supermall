@@ -1,7 +1,7 @@
 <template>
   <div class="goods-item" @click='itemClick'>
     <div class="img-div">
-      <img :src="goodsItem.show.img" alt="" @load='imageLoad'>
+      <img :src="showImage" alt="" @load='imageLoad'>
     </div>
     <div>
       <p>{{goodsItem.title}}</p>
@@ -24,6 +24,11 @@
         }
       }
     },
+    computed: {
+      showImage() {
+        return this.goodsItem.image || this.goodsItem.show.img
+      }
+    },
     data() {
       return {
 
@@ -37,6 +42,13 @@
         // console.log('image');
         // 图片加载完成发射事件,向事件总线发射事件
         this.$bus.$emit('itemImageLoad')
+
+        // 分散发射信号,首页和详情页分别检测(思路一)
+        // if(this.$route.path.indexOf('/home')){
+        //   this.$bus.$emit('homeItemImageLoad')
+        // }else if(this.$route.path.indexOf('/detail')){
+        //   this.$bus.$emit('detailItemImageLoad')
+        // }
       },
       itemClick() {
         // console.log('goodsListItem Click');

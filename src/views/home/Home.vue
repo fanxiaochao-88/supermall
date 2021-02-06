@@ -72,7 +72,8 @@
         isShowBackTop: false,
         tabOffsetTop: 0,
         isTabControlFixed: false,
-        saveY: 0
+        saveY: 0,
+        imgListener: null
       }
     },
     computed: {
@@ -103,9 +104,10 @@
     mounted() {
       // 1.监听图片加载完成
       const refresh = debounce(this.$refs.scroll.refresh, 200)
-      this.$bus.$on('itemImageLoad', () => {
+      this.imgListener = () => {
         refresh()
-      })
+      }
+      this.$bus.$on('itemImageLoad', this.imgListener)
 
       // 2.给tabOffsetTop赋值
       // 组件的属性,$el:用户获取组件的元素
@@ -122,6 +124,9 @@
       this.$refs.scroll.refresh()
     },
     deactivated() {
+      // home组件停止监听全局事件
+      this.$bus.$off('itemImageLoad', this.imgListener)
+      // 保存y值数据
       this.saveY = this.$refs.scroll.getScrollY()
     },
     // mounted() {
