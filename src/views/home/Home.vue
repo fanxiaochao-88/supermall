@@ -44,6 +44,8 @@
   import Scroll from 'components/common/scroll/Scroll'
   import BackTop from 'components/content/backTop/BackTop'
 
+  import { itemListeberMixin } from 'common/mixin'
+
   // 这样引用,本组件对第三方框架依赖性过高
   // import BScroll from 'better-scroll'
 
@@ -73,9 +75,9 @@
         tabOffsetTop: 0,
         isTabControlFixed: false,
         saveY: 0,
-        imgListener: null
       }
     },
+    mixins: [itemListeberMixin],
     computed: {
       showGoods() {
         return this.goods[this.allType[this.allTypeIndex]].list
@@ -102,18 +104,19 @@
 
     },
     mounted() {
-      // 1.监听图片加载完成
-      const refresh = debounce(this.$refs.scroll.refresh, 200)
-      this.imgListener = () => {
-        refresh()
-      }
-      this.$bus.$on('itemImageLoad', this.imgListener)
+      // // 1.监听图片加载完成
+      // const refresh = debounce(this.$refs.scroll.refresh, 200)
+      // this.imgListener = () => {
+      //   refresh()
+      // }
+      // this.$bus.$on('itemImageLoad', this.imgListener)
 
-      // 2.给tabOffsetTop赋值
-      // 组件的属性,$el:用户获取组件的元素
-      // 直接获取的时候  图片还没有加载完成,获取的offsetTop不准确
-      // this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop
-      // console.log(this.tabOffsetTop);
+      // // 2.给tabOffsetTop赋值
+      // // 组件的属性,$el:用户获取组件的元素
+      // // 直接获取的时候  图片还没有加载完成,获取的offsetTop不准确
+      // // this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop
+      // // console.log(this.tabOffsetTop);
+      console.log('Home yuansheng--------------');
     },
     destroyed() {
       console.log('首页销毁')
@@ -177,7 +180,7 @@
         // 如果切换的是底部tabbar,状态会保留
         // 如果切换的是tabcontrol的话,状态会刷新
         // ------------------------------------------
-        this.$refs.scroll.scrollTo(0, -this.tabOffsetTop, 0)
+        // this.$refs.scroll.scrollTo(0, -this.tabOffsetTop, 0)
         // ------------------------------------------
 
       },

@@ -14,32 +14,32 @@
 </template>
 
 <script>
-	export default {
-		name: "DetailGoodsInfo",
+  export default {
+    name: "DetailGoodsInfo",
     props: {
       detailInfo: {
         type: Object
       }
     },
     data() {
-			return {
-				counter: 0,
+      return {
+        counter: 0,
         imagesLength: 0
       }
     },
     methods: {
-	    imgLoad() {
+      imgLoad() {
         if (++this.counter === this.imagesLength) {
-	        this.$emit('imageLoad')
+          this.$emit('imageLoad')
         }
-	    }
+      }
     },
     watch: {
-	    detailInfo() {
-	    	this.imagesLength = this.detailInfo.detailImage[0].list.length
-	    }
+      detailInfo() {
+        this.imagesLength = this.detailInfo.detailImage[0].list.length
+      }
     }
-	}
+  }
 </script>
 
 <style scoped>
@@ -52,7 +52,8 @@
     padding: 0 15px;
   }
 
-  .info-desc .start, .info-desc .end {
+  .info-desc .start,
+  .info-desc .end {
     width: 90px;
     height: 1px;
     background-color: #a3a3a5;
@@ -67,7 +68,8 @@
     float: right;
   }
 
-  .info-desc .start::before, .info-desc .end::after {
+  .info-desc .start::before,
+  .info-desc .end::after {
     content: '';
     position: absolute;
     width: 5px;

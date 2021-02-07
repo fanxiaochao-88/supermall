@@ -73,3 +73,17 @@
 
 
 </style>
+
+<!-- 
+
+this.$nextTick(() => {
+          this.themeTopYs = []
+          this.themeTopYs.push(0)
+          this.themeTopYs.push(this.$refs.params.$el.offsetTop)
+          this.themeTopYs.push(this.$refs.comment.$el.offsetTop)
+          this.themeTopYs.push(this.$refs.recommend.$el.offsetTop)
+          console.log(this.themeTopYs);
+        })
+
+
+ -->
