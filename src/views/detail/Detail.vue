@@ -3,6 +3,7 @@
     <!-- 放导航 -->
     <detail-nav-bar ref='navbar' class="detail-nav-bar" @titleClick='titleClick'></detail-nav-bar>
     <scroll :probeType='3' @scroll='contentScroll' class="content" ref='scroll'>
+      <!-- {{$store.state.cartList.length}} -->
       <detail-swiper :topImages='topImages'></detail-swiper>
       <detail-base-info :goods='goods'></detail-base-info>
       <detail-shop-info :shop='shop'></detail-shop-info>
@@ -144,6 +145,9 @@
         product.iid = this.iid
 
         // 获取完需要展示的数据,将商品添加到购物车里面
+        // this.$store.commit('addCart', product)
+        this.$store.dispatch('addCart', product)
+
       },
       titleClick(index) {
         // console.log(index);
